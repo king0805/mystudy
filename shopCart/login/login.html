@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form action="">
+        用户名：<input type="text" name="user">
+        密码：<input type="password" name="pwd">
+        <input type="submit" name="提交">
+    </form>
+</body>
+<script src="js/jquery.js"></script>
+<script>
+    $('form').submit(function(e){
+        e = e || window.event;
+        e.preventDefault();
+        let uname = $('input[name=user]').val();
+        let pwd = $('input[name=pwd]').val();
+        $.get('php/login.php',{uname,pwd},(res)=>{
+            if(res.meta.state == 200){
+                // console.log(res)
+                localStorage.setItem('uname',res.data.uname);
+                localStorage.setItem('id',res.data.id);
+                localStorage.setItem('token',res.data.token);
+                alert('登录成功');
+                location.href = 'cart.html';
+            }else{
+                alert(res.meta.msg)
+            }
+        },'json')
+    })
+</script>
+</html>

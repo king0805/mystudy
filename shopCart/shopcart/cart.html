@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <style>
+        .goods {
+            width: 290px;
+            height: 390px;
+            margin-left: 10px;
+            margin-bottom: 20px;
+            background-color: white;
+            position: relative;
+            float: left;
+        }
+
+        .goods>.content {
+            text-align: center;
+            height: 330px;
+            width: 100%;
+            position: relative;
+        }
+
+        .goods>.content img {
+            margin-top: 20px;
+            transition: all 1s ease 0s;
+            width: 230px;
+            height: 200px;
+        }
+
+        .goods {
+            width: 290px;
+            height: 390px;
+            margin-left: 35px;
+            margin-bottom: 20px;
+            background-color: white;
+            position: relative;
+            float: left;
+        }
+
+        .goods>.content {
+            text-align: center;
+            height: 330px;
+            width: 100%;
+            position: relative;
+        }
+
+        .goods>.content img {
+            margin-top: 20px;
+            transition: all 1s ease 0s;
+            width: 230px;
+            height: 200px;
+        }
+
+        .goods>.content p {
+            font-size: 14px;
+            width: 230px;
+            overflow: hidden;
+            height: 40px;
+            left: 0px;
+            right: 0px;
+            margin: auto;
+            position: absolute;
+            line-height: 22px;
+            bottom: 10px;
+        }
+
+        .goods>.buy {
+            border: 2px solid rgb(224, 18, 34);
+            height: 58px;
+            width: 286px;
+            bottom: 0px;
+            position: absolute;
+        }
+
+        .goods>.buy .price1 {
+            font-size: 24px;
+            color: rgb(224, 18, 34);
+            margin-left: 5px;
+            line-height: 35px;
+        }
+
+        .goods>.buy .price2 {
+            font-size: 14px;
+            text-decoration: line-through;
+            margin-left: 5px;
+        }
+
+        .goods>.buy .o1 {
+            font-size: 16px;
+            margin-left: 10px;
+            line-height: 10px;
+        }
+
+        .goods>.buy .o2 {
+            display: inline-block;
+            width: 100px;
+            height: 10px;
+            border: 1px solid rgb(224, 18, 34);
+            margin-left: 20px;
+            margin-top: 5px;
+            position: absolute;
+        }
+
+        .goods>.buy .o2>span {
+            position: absolute;
+            height: 10px;
+            top: 0px;
+            bottom: 0px;
+            background-color: rgb(224, 18, 34);
+        }
+
+        .goods>.buy .addCart {
+            width: 87px;
+            height: 58px;
+            position: absolute;
+            right: 0px;
+            top: 0px;
+            color: white;
+            font-size: 16px;
+            text-align: center;
+            line-height: 58px;
+            cursor: pointer;
+            background-color: rgb(224, 18, 34);
+        }
+        h2{
+            cursor: pointer;
+            top: 0;
+            right: 0;
+            position: absolute;
+        }
+        h1{
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            position: absolute;
+        }
+        .header{
+            width: 100%;
+            color: red;
+        }
+        .container{
+            margin-top: 40px;
+        }
+        .login{
+            position: fixed;
+            right: 3px;
+            top: 200px;
+            z-index: 1;
+            color: pink;
+            background: rgb(167, 92, 79);
+            height: 70px;
+            width: 30px;
+            padding-left: 15px;
+            padding-top: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1></h1>
+        <h2>点击退出</h2>
+    </div>
+    <div class="login">购物车</div>
+    <div class="container .clear_fix">
+        <img src="img/loading.jpg" alt="" style="width: 100%;height: 400px;">
+    </div>
+</body>
+<script src="js/jquery.js"></script>
+<script src="js/public.js"></script>
+<script>
+    //点击跳转购物车
+    $('.login').click(function(){
+        location.href = 'shop.html';
+    })
+    //点击退出
+    $('h2').click(function(){
+        localStorage.clear();
+        location.reload();
+    })
+    //判断是否登录了
+    let uName = localStorage.getItem('uname');
+    let id = localStorage.getItem('id');
+    if (id) {
+        $('h1').html(uName);
+    } else {
+        $('h1').html('<a href="login.html">请登录</a>');
+    }
+    $.get('php/goods.php', {}, (res) => {
+        // console.log(res.data)
+        let html = '';
+        $.each(res.data, function (index, item) {
+            // console.log(item)
+            html += `
+            <div class="goods" id="${item.id}">
+                <div class="content">
+                    <img src="${item.goods_img}">
+                    <p>${item.goods_title}</p>
+                </div>
+                <div class="buy">
+                    <div>
+                        <div>
+                            <span class="price1">￥${item.goods_price_small}</span>
+                            <span class="price2">￥${item.goods_price}</span>
+                        </div>
+                        <div>
+                            <span class="o1">50.00%</span>
+                            <span class="o2">
+                                <span style="width: 50%;"></span>
+                            </span>
+                        </div>
+                    </div>
+                    <div id=${item.id} class="addCart">加入购物车</div>
+                </div>
+            </div>
+        `
+        })
+        $('.container').html(html);
+    }, 'json');
+
+    $('.container').on('click', '.addCart', function () {
+        if(id){
+            let token = localStorage.getItem('token');
+            let userId = id;
+            let goodsId = $(this).attr('id');
+            $.get('php/addCart.php', {
+                goodsId,
+                userId,
+                token,
+            }, function (res) {
+                if (res.meta.state == 201) {
+                    let temp = confirm("添加成功，是否跳转购物车列表");
+                    if (temp) location.href = 'shop.html';
+                } else {
+                    alert('添加失败，请重新添加');
+                }
+            }, 'json')
+        }else{
+            let temp = confirm('请登录');
+            if(temp){
+                location.href = 'login.html';   
+            }
+        }
+    })
+</script>
+
+</html>

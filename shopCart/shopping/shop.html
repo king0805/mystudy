@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        ul,
+        li {
+            list-style: none;
+        }
+        #box{
+            margin-top: 25px;
+        }
+        #box .header ul {
+            width: 600px;
+            height: 40px;
+            border-top: 4px solid rgb(68, 151, 207);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgb(180, 202, 206);
+        }
+
+        #box .header ul input {
+            position: absolute;
+            left: 10px;
+        }
+
+        #box .content ul {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            width: 600px;
+            margin-top: 10px;
+            background: rgb(202, 217, 221);
+            height: 50px;
+        }
+
+        #box .content h1 {
+            font-weight: normal;
+            font-size: 20px;
+            width: 600px;
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+        }
+
+        #box .content ul .select {
+            position: absolute;
+            left: 10px;
+        }
+
+        #box .content ul .number {
+            position: absolute;
+            left: 325px;
+        }
+
+        #box .content ul .title {
+            position: absolute;
+            left: 60px;
+        }
+
+        #box .content ul .number input {
+            width: 30px;
+            text-align: center;
+        }
+
+        #box .content ul .number button {
+            width: 15px;
+        }
+
+        #box .content ul .message {
+            position: absolute;
+            left: 230px;
+        }
+
+        #box .content ul img {
+            width: 40px;
+            position: absolute;
+            left: 130px;
+        }
+
+        #box .content ul .price {
+            position: absolute;
+            left: 450px;
+        }
+
+        #box .content ul .remove {
+            position: absolute;
+            left: 535px;
+            cursor: pointer;
+        }
+
+        #box .tail ul {
+            width: 600px;
+            height: 50px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgb(206, 203, 203);
+            margin-top: 10px;
+        }
+
+        #box .tail ul li:nth-child(1) span {
+            display: block;
+            background: red;
+            border-radius: 10px;
+            border: 1px solid red;
+            margin: 5px;
+            text-align: center;
+            width: 80px;
+            color: white;
+            cursor: pointer;
+        }
+
+        #box .tail ul .settlement {
+            cursor: pointer;
+        }
+
+        h2 a {
+            position: absolute;
+            left: 550px;
+            top:3px;
+            text-decoration: none;
+            color: rgb(63, 150, 231);
+            font-weight: bold;
+        }
+
+        h1 a {
+            text-decoration: none;
+        }
+        .header h1{
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            position: absolute;
+            color: red;
+        }
+        .header h2{
+            cursor: pointer;
+            top: 0;
+            right: 0;
+            position: absolute;
+            color: red;
+        }
+        .empty{
+            text-align: center;
+            color: red;
+            font-weight: bold;
+            width: 600px;
+            height: 50px;
+            line-height: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1></h1>
+        <h2>点击退出</h2>
+    </div>
+    <h2><a href="cart.html">去商城</a></h2>
+    <div id="box">
+        <div class="header">
+            <ul>
+                <input type="checkbox" class="allSelect">
+                <span>全选</span>
+                <li>商品</li>
+                <li>商品信息</li>
+                <li>数量</li>
+                <li>单价</li>
+                <li>操作</li>
+            </ul>
+        </div>
+        <div class="content">
+
+        </div>
+        <div class="tail">
+            <ul>
+                <li>
+                    <!-- <span class="addGoods">添加商品</span> -->
+                    <span class="reverse">反选</span>
+                </li>
+                <li>
+                    已选择商品<span class="selected">0</span>件
+                </li>
+                <li>合计(不含运费)：<span class="total">￥</span></li>
+                <li class="settlement">结算</li>
+            </ul>
+
+        </div>
+    </div>
+</body>
+<script src="js/jquery.js"></script>
+<script>
+    //点击退出
+    $('h2').click(function(){
+        localStorage.clear();
+        location.reload();
+    });
+    $('.content').html('<img src="img/loading2.jpg" width="600px" height="200px" alt="">')
+    let uName = localStorage.getItem('uname');
+    let id = localStorage.getItem('id');
+    if (id) {
+        $('h1').html(uName);
+    } else {
+        $('h1').html('<a href="login.html">请登录</a>');
+    }
+
+    $.ajax({
+        type: 'get',
+        url: 'php/cart.php',
+        data: {
+            userId: id,
+        },
+        dataType: 'json',
+        success: (res) => {
+            let html = '';
+            $('.content').html('<p class="empty">您的购物车是空的~~~</p>')
+            $.each(res.data, (index, item) => {
+                html += `
+                <ul goods_id="${item.goods_id}" id="${item.id}">
+                    <input type="checkbox" class="select">
+                    <img src="${item.goods_img}">
+                    <li class="title">${item.goods_title}</li>
+                    <li class="message">${item.buy_num}</li>
+                    <li class="number">
+                        <button class="reduce">-</button>
+                        <input type="text" value="${item.buy_num}">
+                        <button class="add">+</button>
+                    </li>
+                    <li class="price">${item.goods_price}</li>
+                    <li class="remove">删除</li>
+                </ul>
+                `
+                $('.content').html(html);
+            });
+        },
+        error: (err) => {
+            console.log(err)
+        }
+    });
+
+    function total() {
+        let totalNum = 0;
+        let totalPrice = 0;
+        $('.select:checked').each(function (index, item) {
+            // console.log($(this).parent().find('.price').html())
+            let price = $(this).parent().find('.price').html();
+            let num = $(this).parent().find('.number input').val();
+            totalNum += parseInt(num);
+            totalPrice += parseInt(num) * parseFloat(price)
+            $('.total').html(totalPrice);
+            $('.selected').html(totalNum);
+        })
+        // console.log(total)
+    };
+    $('.content').on('click', '.select', function () {
+        $('.total').html(0);
+        $('.selected').html(0);
+        total();
+    })
+    $('.allSelect').click(function () {
+        let status = $('.allSelect').prop('checked')
+        if (status) {
+            $('.select').prop('checked', true)
+        } else {
+            $('.select').prop('checked', false)
+            $('.total').html(0);
+            $('.selected').html(0);
+        }
+        total();
+    });
+    $('.reverse').click(function () {
+        $('.select').each(function (index, item) {
+            let states = $(item).prop('checked')
+            $(item).prop('checked', !states);
+        })
+        $('.total').html(0);
+        $('.selected').html(0);
+        total();
+    });
+    $('.content').on('click', '.remove', function () {
+        let temp = confirm('确认要删除吗？')
+        if (temp) {
+            //修改数据库的数量
+            let id = $(this).parents('ul').attr('id')
+            // console.log(temp)
+            $.get('php/delete.php', {
+                id
+            }, (res) => {
+                // console.log(res)
+                if (res.meta.state == 201) {
+                    $(this).parents('ul').remove();
+                    location.reload();
+                } else {
+                    alert('res.meta.msg');
+                }
+            }, 'json')
+        } else {
+            return;
+        }
+        $('.total').html(0);
+        $('.selected').html(0);
+        total();
+    })
+    $('.content').on('blur', '.number input', function () {
+        // console.log(this)
+        //正则替换
+        let val = $(this).val();
+        val = val.replace(/[^0-9]/g, '');
+        if (val <= 1 || isNaN(val)) val = 1;
+        let userId = 1;
+        let goodsId = $(this).parents('ul').attr('goods_id');
+        let buyNum = val;
+        $.ajax({
+            type: 'get',
+            url: 'php/updateCart.php',
+            data: {
+                userId,
+                goodsId,
+                buyNum,
+            },
+            dataType: 'json',
+            success: (res) => {
+                if (res.meta.state == 200) {
+                    $(this).val(val);
+                    $(this).parents('ul').find('.message').html(val);
+                    total();
+                } else {
+                    alert(res.meta.msg)
+                };
+            },
+            error: (err) => {
+                alert(err);
+            },
+        })
+    });
+    $('.content').on('click', '.add', function () {
+        // console.log(this)
+        let val = $(this).prev().val();
+        val = parseInt(val) + 1;
+        let userId = 1;
+        let goodsId = $(this).parents('ul').attr('goods_id');
+        let buyNum = val;
+        // console.log(val)
+        //修改数据库的数量
+        $.ajax({
+            type: 'get',
+            url: 'php/updateCart.php',
+            data: {
+                userId,
+                goodsId,
+                buyNum
+            },
+            dataType: 'json',
+            success: (res) => {
+                if (res.meta.state == 200) {
+                    $(this).prev().val(val);
+                    $(this).parents('ul').find('.message').html(val);
+                    total()
+                } else {
+                    alert(res.meta.msg)
+                };
+            },
+            error: (err) => {
+                alert(err);
+            },
+
+        })
+
+    })
+    $('.content').on('click', '.reduce', function () {
+        // console.log(this)
+        let val = $(this).next().val();
+        val = parseInt(val) - 1;
+        // console.log(val)
+        //修改数据库的数量
+        let userId = 1;
+        let goodsId = $(this).parents('ul').attr('goods_id');
+        let buyNum = val;
+        // console.log(val)
+        //修改数据库的数量
+        $.ajax({
+            type: 'get',
+            url: 'php/updateCart.php',
+            data: {
+                userId,
+                goodsId,
+                buyNum,
+            },
+            dataType: 'json',
+            success: (res) => {
+                if (res.meta.state == 200) {
+                    $(this).next().val(val);
+                    $(this).parents('ul').find('.message').html(val);
+                    total()
+                } else {
+                    alert(res.meta.msg)
+                };
+            },
+            error: (err) => {
+                alert(err);
+            },
+        })
+    })
+</script>
+
+</html>
